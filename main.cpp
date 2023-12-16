@@ -174,7 +174,7 @@ int main(int argc, char **argv) {
 
 
     auto start = chrono::high_resolution_clock::now();
-    int numberOfChunks = 1;
+    int numberOfChunks = 0;
     int chunkSize = 8 * 1024 * 1024;
     ifstream inputFile(inputFileName);
 	if(!inputFile) {
@@ -216,8 +216,7 @@ int main(int argc, char **argv) {
 					currentCount++;
 					inputValues.push_back(words[i]);
                     if (currentCount == chunkSize) {
-						makeRuns(inputValues, currentCount, numberOfChunks);
-						numberOfChunks++;
+						makeRuns(inputValues, currentCount, ++numberOfChunks);
 						currentCount = 0;
 						unprocessedData = false;
 						inputValues.clear();
@@ -225,11 +224,8 @@ int main(int argc, char **argv) {
 				}
 			}
             if (unprocessedData) {
-				makeRuns(inputValues, currentCount, numberOfChunks);
+				makeRuns(inputValues, currentCount, ++numberOfChunks);
                 inputValues.clear();
-			}
-            else {
-				numberOfChunks--;
 			}
             distInputFile.close();
 		}));
