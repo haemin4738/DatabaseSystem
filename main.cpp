@@ -8,6 +8,7 @@
 #include <string>
 #include <cctype>
 #include <queue>
+#include <map>
 
 #define NUM_THREADS 4
 
@@ -110,8 +111,13 @@ void reduceAndWrite() {
 
     ifstream inputFile("merge&sort.txt");
     ofstream outputFile("reduce.txt", ios::trunc | ios::out);
-    string line;
+	map<char, ofstream> outputFiles;
+	for(char c{'a'}; c <= 'z'; ++c) {
+		outputFiles[c].open(string(1, c) + ".txt", ios::trunc | ios::out);
+	}
+	ofstream etcFile("etc.txt", ios::trunc | ios::out);
 
+    string line;
     while (getline(inputFile, line)) {
         if(line.empty()) continue;
 		stringstream ss(line);
@@ -124,11 +130,18 @@ void reduceAndWrite() {
        	count /= 2;
         ++count;
 
-        outputFile << word << " " << count << std::endl;
+		char first = word[0];
+		if(first >= 'a' && first <= 'z') {
+			outputFiles[first] << word << " " << count << endl;
+		} else {
+			etcFile << word << endl;
+		}
 	}
     
 	inputFile.close();
-	outputFile.close();
+	etcFile.close();
+	for(auto& file : outputFiles)
+		file.second.close();
 }
 
 vector<string> split(std::string& input) {
@@ -138,8 +151,12 @@ vector<string> split(std::string& input) {
 
     while (ss >> temp) {
         string processedWord = "";
-        if (isalnum(static_cast<unsigned char>(temp[0])))
-            processedWord += temp[0];
+        if (isalnum(static_cast<unsigned char>(temp[0]))) {
+			if(isalpha(static_cast<unsigned char>(temp[0])))
+	            processedWord += tolower(static_cast<unsigned char>(temp[0]));
+			else
+				processedWord += temp[0];
+		}
 
         for (int i{ 1 }; i < temp.size(); ++i) {
             if(temp[i] > 127)
